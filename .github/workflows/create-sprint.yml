@@ -1,4 +1,4 @@
-name: Create Sprint (Bi-weekly Saturday)
+name: Create Sprint (Saturday Auto)
 
 on:
   schedule:
@@ -22,29 +22,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Check bi-weekly Saturday
-        id: check
-        run: |
-          # 👇 ANCHOR DATE (a Saturday you trust)
-          ANCHOR="2026-02-07"
-
-          TODAY=$(date +%Y-%m-%d)
-
-          # Convert to seconds
-          anchor_sec=$(date -d "$ANCHOR" +%s)
-          today_sec=$(date -d "$TODAY" +%s)
-
-          diff_days=$(( (today_sec - anchor_sec) / 86400 ))
-
-          # Run only if multiple of 14 days
-          if [ $((diff_days % 14)) -eq 0 ]; then
-            echo "run=true" >> $GITHUB_OUTPUT
-          else
-            echo "run=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Run sprint creation
-        if: steps.check.outputs.run == 'true'
         env:
           CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
         run: node sprint.js
+
