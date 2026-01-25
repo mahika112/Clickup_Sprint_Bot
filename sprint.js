@@ -2,8 +2,22 @@ import fetch from "node-fetch";
 
 const API = "https://api.clickup.com/api/v2";
 const TOKEN = process.env.CLICKUP_API_TOKEN;
-const FOLDER_ID = "90168052154";
 const SPRINT_DAYS = 14;
+
+// 🔁 ALL SPRINT FOLDERS (across ALL spaces)
+const FOLDERS = [
+  // H&M and Web-Dev
+  { name: "Web-Dev Sprint 2026", folderId: "90168052154" },
+  { name: "HM: Sprint 2026", folderId: "90168169313" },
+
+  // Finance & Marketing
+  { name: "Finance Sprint 2026", folderId: "90168052181" },
+  { name: "Marketing Sprint 2026", folderId: "90168052182" },
+
+  // O&M and Volunteer
+  { name: "O&M Sprint 2026", folderId: "90168052184" },
+  { name: "Volunteer Sprint 2026", folderId: "90168245143" },
+];
 
 // ---------- helpers ----------
 async function api(url, method = "GET", body) {
@@ -34,13 +48,11 @@ function sameDate(a, b) {
 }
 
 // ---------- core ----------
-async function getLastSprint() {
-  const data = await api(`${API}/folder/${FOLDER_ID}/list`);
-
+async function getLastSprint(folderId) {
+  const data = await api(`${API}/folder/${folderId}/list`);
   let last = { number: 0, endDate: null };
 
   for (const list of data.lists) {
-    // Match: Sprint 1: 11 Jan - 24 Jan
     const match = list.name.match(
       /Sprint\s+(\d+)\s*:\s*(\d{1,2})\s+(\w+)\s*-\s*(\d{1,2})\s+(\w+)/i
     );
@@ -59,48 +71,56 @@ async function getLastSprint() {
       }
     }
   }
-
   return last;
 }
 
-async function createSprint() {
-  const last = await getLastSprint();
+async function createSprintForFolder(folder) {
+  const last = await getLastSprint(folder.folderId);
 
   if (!last.endDate) {
-    console.error("❌ No existing sprint found.");
+    console.log(`⚠️ ${folder.name}: No sprint found`);
     return;
   }
 
   const today = new Date();
 
-  // 🔒 Guard: only run on sprint END DATE
+  // 🔒 Only run on sprint END date (Saturday)
   if (!sameDate(today, last.endDate)) {
     console.log(
-      `⏭ Not sprint end date. Today: ${formatDate(today)}, End: ${formatDate(last.endDate)}`
+      `⏭ ${folder.name}: Not sprint end date (Today ${formatDate(
+        today
+      )}, End ${formatDate(last.endDate)})`
     );
     return;
   }
 
   const nextNumber = last.number + 1;
 
-  // Start = last end + 1 day (Saturday)
   const start = new Date(last.endDate);
   start.setDate(start.getDate() + 1);
 
-  // End = start + 13 days (Saturday)
   const end = new Date(start);
   end.setDate(start.getDate() + (SPRINT_DAYS - 1));
 
   const sprintName = `Sprint ${nextNumber}: ${formatDate(start)} - ${formatDate(end)}`;
 
-  await api(`${API}/folder/${FOLDER_ID}/list`, "POST", {
+  await api(`${API}/folder/${folder.folderId}/list`, "POST", {
     name: sprintName,
   });
 
-  console.log("✅ Created:", sprintName);
+  console.log(`✅ ${folder.name}: Created ${sprintName}`);
 }
 
-createSprint();
+// ---------- runner ----------
+async function run() {
+  for (const folder of FOLDERS) {
+    await createSprintForFolder(folder);
+  }
+}
+
+run();
+
+
 
 
 
