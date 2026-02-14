@@ -5,19 +5,19 @@ const TOKEN = process.env.CLICKUP_API_TOKEN;
 const SPRINT_DAYS = 14;
 
 // 🔁 ALL SPRINT FOLDERS (across ALL spaces)
-const FOLDERS = [
-  // H&M and Web-Dev
-  { name: "Web-Dev Sprint 2026", folderId: "90168052154" },
-  { name: "HM: Sprint 2026", folderId: "90168169313" },
+// const FOLDERS = [
+//   // H&M and Web-Dev
+//   { name: "Web-Dev Sprint 2026", folderId: "90168052154" },
+//   { name: "HM: Sprint 2026", folderId: "90168169313" },
 
-  // Finance & Marketing
-  { name: "Finance Sprint 2026", folderId: "90168052181" },
-  { name: "Marketing Sprint 2026", folderId: "90168052182" },
+//   // Finance & Marketing
+//   { name: "Finance Sprint 2026", folderId: "90168052181" },
+//   { name: "Marketing Sprint 2026", folderId: "90168052182" },
 
-  // O&M and Volunteer
-  { name: "O&M Sprint 2026", folderId: "90168052184" },
-  { name: "Volunteer Sprint 2026", folderId: "90168245143" },
-];
+//   // O&M and Volunteer
+//   { name: "O&M Sprint 2026", folderId: "90168052184" },
+//   { name: "Volunteer Sprint 2026", folderId: "90168245143" },
+// ];
 
 // ---------- helpers ----------
 async function api(url, method = "GET", body) {
